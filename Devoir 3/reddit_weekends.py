@@ -87,14 +87,14 @@ def tests(wd: pd.DataFrame, we: pd.DataFrame, verbose: bool = False) -> Tuple[fl
     Retour:
         Tuple[float, float, float, float] : p_test, p_wd_isnormal, p_we_isnormal, p_vartest
     """
-    # Obtenez la valeur-p pour le test t
+    # Obtenir la valeur-p pour le test t
     _, p_ttest = sp.ttest_ind(wd['comment_count'], we['comment_count'], equal_var=False)
 
-    # Obtenez la valeur-p pour le test de normalité sur les données en semaine et fin de semaine séparément
+    # Obtenir la valeur-p pour le test de normalité sur les données en semaine et fin de semaine séparément
     _, p_wd_normal = sp.normaltest(wd['comment_count'])
     _, p_we_normal = sp.normaltest(we['comment_count'])
 
-    # Obtenez la valeur-p pour le test qui vérifie si ces 2 distributions ont la même variance
+    # Obtenir la valeur-p pour le test qui vérifie si ces 2 distributions ont la même variance
     _, p_vartest = sp.levene(wd['comment_count'], we['comment_count'])
 
     # ---------- NE MODIFIEZ PAS LA FONCTION SOUS CETTE LIGNE  ---------- #
@@ -139,7 +139,6 @@ def central_limit_theorem(df: pd.DataFrame) -> pd.DataFrame:
     return clt
 
 
-# TODO - Complétez cette méthode
 def mann_whitney_u_test(wd: pd.DataFrame, we: pd.DataFrame) -> float:
     """Exécutez le test U de Mann-Whitney entre les données du jour de la semaine et celles du week-end.
 

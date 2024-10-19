@@ -10,7 +10,6 @@ from typing import Tuple
 import xml.etree.ElementTree as ET
 
 
-# TODO - complétez cette méthode
 def parse_xml(path: str) -> pd.DataFrame:
     """
     Parsez le fichier XML obtenu à partir de la base de données du lecteur FIDE qui peut être trouvé ici :
@@ -42,26 +41,24 @@ def parse_xml(path: str) -> pd.DataFrame:
 
     # ----------  NE MODIFIEZ PAS LA FONCTION AU-DESSUS DE CETTE LIGNE ---------- #
 
-    # Parse the XML file
+    # Arbre d'élément XML
     tree = ET.parse(path)
     root = tree.getroot()
 
-    # Extract data
+    # Obtenir valeurs désirées pour les étiquettes désirées
     data = []
     for person in root.findall('player'):
         entry = {tag: _get_val(person, tag) for tag in TARGET_ATTRIBUTES}
         data.append(entry)
 
-    # Convert to DataFrame
+    # Convertir en dataframe
     df = pd.DataFrame(data, columns=TARGET_ATTRIBUTES)
 
     return df
 
 
-# TODO - complétez cette méthode
 def clean_data(df: pd.DataFrame, year_cutoff: int) -> pd.DataFrame:
     """
-
     Arguments :
         df (pd.DataFrame) : la trame de données brute renvoyée par la méthode parse_xml()
         year_cutoff (entier) : supprimer les joueurs dont les anniversaires sont SUPÉRIEURS À (>) cette valeur; c'est-à-dire seulement
@@ -70,16 +67,19 @@ def clean_data(df: pd.DataFrame, year_cutoff: int) -> pd.DataFrame:
     Retour:
         pd.DataFrame : Dataframe nettoyé
     """
-    # TODO: Enlever données sans information de date de naissance
+    # Enlever données sans information de date de naissance
+    df = df.dropna(subset=['birthday'])
 
-    # TODO: Convertissez les types numériques en entiers
-    
-    # TODO: Gardez juste les joueurs avec une date de naissance jusqu'à year_cutoff (inclusivement)
+    # Convertir les types numériques en entiers
+    df['rating'] = df['rating'].astype(int)
+    df['birthday'] = df['birthday'].astype(int)
 
-    return None
+    # Garder juste les joueurs avec une date de naissance jusqu'à year_cutoff (inclusivement)
+    df = df[df['birthday'] <= year_cutoff]
+
+    return df
 
 
-# TODO - complétez cette méthode
 def bin_counts(df: pd.DataFrame, bins: list, bin_centers: list) -> pd.DataFrame:
     """ Renvoie un DataFrame avec les `ratings` regroupés entre les valeurs données dans `bins`, et
     avec une étiquette donnée par `bin_centers`. En plus du nombre brut, ajoutez également une colonne normalisée nommée "count_norm" obtenu en divisant les comptes par la somme des comptes.
@@ -108,13 +108,15 @@ def bin_counts(df: pd.DataFrame, bins: list, bin_centers: list) -> pd.DataFrame:
     if 'rating' not in df.keys():
         raise ValueError("Incorrect input format; 'rating' must be a column in the input dataframe")
 
-    # TODO: Astuce - utilisez pd.cut, et assurez-vous d'utiliser reset_index() quand utile
-    hist = None
-
-    # TODO: Renommer les colonnes, assurez qu'ils ont encore du sens (nous voulons 'rating', 'count')
-    # Note: Vous ne devriez pas avoir à renommer les colonnes. Si vous devez, vous avez peut-être une version vielle de Pandas ce qui pourrait amener à des problèmes avec le autograder.
-
-    # TODO: Ajoutez la colonne 'count_norm'
+    # Utiliser pd.cut pour créer les bins
+    df['bin'] = pd.cut(df['rating'], bins=bins, labels=bin_centers, right=False)
+    
+    # Compter les occurrences dans chaque bin
+    hist = df['bin'].value_counts().reset_index()
+    hist.columns = ['rating', 'count']
+    
+    # Ajouter la colonne 'count_norm'
+    hist['count_norm'] = hist['count'] / hist['count'].sum()
 
     return hist
 
