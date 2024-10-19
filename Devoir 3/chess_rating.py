@@ -42,15 +42,20 @@ def parse_xml(path: str) -> pd.DataFrame:
 
     # ----------  NE MODIFIEZ PAS LA FONCTION AU-DESSUS DE CETTE LIGNE ---------- #
 
-    # TODO: 
-    # Arbre d'élément XML (utilisez xml.etree.ElementTree)
+    # Parse the XML file
+    tree = ET.parse(path)
+    root = tree.getroot()
 
-    # TODO: itérez sur le root node, pour obtenir les valeurs désirées pour les étiquettes désirées
-    # Assurez-vous de chargez toutes les valeurs de TARGET_ATTRIBUTES (utilisez le même nom de colonne dans le dataframe comme nom d'étiquette!). Vous pouvez utilisez la méthode _get_val(person, tag) fournie définie en haut pour obtenir l'étiquette correspondante
-   
-    # TODO: Convertir en dataframe
+    # Extract data
+    data = []
+    for person in root.findall('player'):
+        entry = {tag: _get_val(person, tag) for tag in TARGET_ATTRIBUTES}
+        data.append(entry)
 
-    return None
+    # Convert to DataFrame
+    df = pd.DataFrame(data, columns=TARGET_ATTRIBUTES)
+
+    return df
 
 
 # TODO - complétez cette méthode
