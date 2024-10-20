@@ -138,7 +138,6 @@ class PermutationTest:
         self.n_overrep = n_overrep
         self.n_underrep = n_underrep
     
-    # TODO - complétez cette méthode
     def job(self, seed: int = None) -> Tuple[int, int]:
         """ Échantillonne deux groupes de taille n_overrep, n_underrep et renvoie la note maximale pour chacun des
         groupe dans cet ordre (overrep, underrep)
@@ -151,16 +150,21 @@ class PermutationTest:
          """
         if seed is not None:
             np.random.seed(seed)
-            
-
-        # TODO : échantillonnez deux groupes de taille n_overrep, n_underrep et renvoyez la note maximale pour chacun
-        # des groupe dans l'ordre (overrep, underrep)
         
-        # Astuce : pensez à utiliser np.random.permutation sur un choix approprié de tableau
-        return 
+        # Mélanger les indices
+        permuted_indices = np.random.permutation(len(self.df))
+        
+        # Sélectionner les indices pour les groupes surreprésentés et sous-représentés
+        overrep_indices = permuted_indices[:self.n_overrep]
+        underrep_indices = permuted_indices[self.n_overrep:self.n_overrep + self.n_underrep]
+        
+        # Obtenir les notes maximales pour chaque groupe
+        max_overrep = self.df.iloc[overrep_indices]['rating'].max()
+        max_underrep = self.df.iloc[underrep_indices]['rating'].max()
+        
+        return max_overrep, max_underrep
 
 
-# TODO - complétez cette méthode
 def sample_two_groups(
     df: pd.DataFrame, n_overrep: int, n_underrep: int, n_iter: int=1000
 ) -> Tuple[np.array, np.array]:
@@ -180,12 +184,13 @@ def sample_two_groups(
     best_over = []
     best_under = []
 
-    # TODO : exécutez n_iter runs de cette expérience et renvoyez un tableau numpy contenant les valeurs maximales des groupes surreprésentés et sous-représentés respectivement.
+    # Créer une instance de PermutationTest
+    perm_test = PermutationTest(df, n_overrep, n_underrep)
 
-    # Astuce : enveloppez votre itérateur avec tqdm pour obtenir une barre de progression, par exemple :
-    # >>> for i in tqdm(range(10)):
-    # >>>     print(i)
+    # Exécuter n_iter runs de cette expérience
+    for _ in tqdm(range(n_iter)):
+        max_overrep, max_underrep = perm_test.job()
+        best_over.append(max_overrep)
+        best_under.append(max_underrep)
 
     return np.array(best_over), np.array(best_under)
-
-
